@@ -26,7 +26,7 @@ export default () => {
   const mapInstance = ref();
 
   const center = { lng: 114.085947, lat: 22.547 };
-  const zoom = 11;
+  const zoom = 10.8;
 
   /** 初始化地图 */
   const initAMap = (id: string) => new Promise((resolve, reject) => AMapLoader.load({
