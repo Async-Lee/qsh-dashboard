@@ -12,7 +12,10 @@ const color = '#0098fa';
 
 const options: EChartsOption = {
   color,
-  // tooltip: {},
+  tooltip: {
+    trigger: 'axis',
+    showContent: false
+  },
   grid: {
     left: vw(24),
     right: vw(24),

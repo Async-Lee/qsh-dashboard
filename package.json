@@ -12,7 +12,10 @@
     "format": "prettier --write src/"
   },
   "dependencies": {
+    "@amap/amap-jsapi-loader": "^1.0.1",
+    "@amap/amap-jsapi-types": "^0.0.13",
     "echarts": "^5.4.2",
+    "element-plus": "^2.3.2",
     "pinia": "^2.0.32",
     "v-scale-screen": "^2.2.0",
     "vue": "^3.2.47",
