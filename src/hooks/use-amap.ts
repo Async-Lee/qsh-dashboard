@@ -1,4 +1,4 @@
-import { ref } from 'vue';
+import { nextTick, ref } from 'vue';
 import AMapLoader from '@amap/amap-jsapi-loader';
 import '@amap/amap-jsapi-types';
 import ICON_MAP_MAKE from '@image/icon-map-make.png';
@@ -39,10 +39,13 @@ export default () => {
       center: new AMap.LngLat(center.lng, center.lat),
       zoom,
     };
-
     mapInstance.value = new AMap.Map(id, option);
-    mapInstance.value.setDefaultCursor('pointer');
     resolve(true);
+
+    nextTick(() => {
+      mapInstance.value.setDefaultCursor('pointer');
+      mapInstance.value.setZoom(zoom);
+    });
   }).catch((error) => {
     console.error(error);  //加载错误提示
     reject(error);
