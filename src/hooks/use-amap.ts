@@ -21,13 +21,12 @@ interface IEnterpriseInfo extends IPositoin {
 export default () => {
   /** 高德地图key */
   const AMAP_KEY = '12dc3309c3ab09f2d21dbecca2b6c047';
-  /** 高德地图密钥 */
-  // const AMAP_SECRET_KEY = 'd8b039e7fe264c5b5c5e50a0cf7b0440';
 
   /** 地图实例 */
   const mapInstance = ref();
 
   const center = { lng: 114.085947, lat: 22.547 };
+  const zoom = 11;
 
   /** 初始化地图 */
   const initAMap = (id: string) => new Promise((resolve, reject) => AMapLoader.load({
@@ -38,6 +37,7 @@ export default () => {
     /** 初始化地图参数 */
     const option: { [key: string]: any } = {
       center: new AMap.LngLat(center.lng, center.lat),
+      zoom,
     };
 
     mapInstance.value = new AMap.Map(id, option);
