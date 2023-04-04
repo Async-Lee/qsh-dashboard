@@ -18,19 +18,22 @@
   position: relative;
   width: vw(220);
   padding: vw(12) vw(12) vw(18);
-  background: transparent url('@image/icon-info-window-bg.png') center/cover no-repeat;
-  // background-color: #fff;
-  // border-radius: vw(4);
+  box-shadow: 0 vw(4) vw(10) 0 rgba(0, 0, 0, .3);
+  border-radius: vw(4);
+  // overflow: hidden;
+  // background: transparent url('@image/icon-info-window-bg.png') center bottom/cover no-repeat;
+  background-color: #fff;
 
-  // &:after {
-  //   position: absolute;
-  //   bottom: vw(-16);
-  //   left: 50%;
-  //   transform: translateX(-50%);
-  //   content: ' ';
-  //   border: vw(8) solid transparent;
-  //   border-top: vw(8) solid #fff;
-  // }
+  &:after {
+    position: absolute;
+    z-index: 1;
+    bottom: vw(-16);
+    left: 50%;
+    transform: translateX(-50%);
+    content: ' ';
+    border: vw(10) solid transparent;
+    border-top: vw(10) solid #fff;
+  }
 
   &--enterprise-info {
     display: flex;

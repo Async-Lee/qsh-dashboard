@@ -1,7 +1,8 @@
 import { nextTick, ref } from 'vue';
 import AMapLoader from '@amap/amap-jsapi-loader';
 import '@amap/amap-jsapi-types';
-import ICON_MAP_MAKE from '@image/icon-map-make.png';
+import ICON_MAP_MAKE_NORMAL from '@image/icon-map-make-normal.png';
+import ICON_MAP_MAKE_SELECTED from '@image/icon-map-make-selected.png';
 import { vw } from '@/utils';
 
 interface IPositoin {
@@ -16,6 +17,8 @@ interface IEnterpriseInfo extends IPositoin {
   enterpriseName: string;
   /** 企业地址 */
   enterpriseAddress: string;
+  /** 默认展示 */
+  isDefault?: boolean;
 }
 
 export default () => {
@@ -71,28 +74,61 @@ export default () => {
       isCustom: true,
       closeWhenClickMap: true,
       anchor: 'bottom-center',
-      offset: new AMap.Pixel(0, vw(-44)),
+      offset: new AMap.Pixel(0, vw(-52)),
       content: htmlText
     });
 
     infoWindow.open(mapInstance.value, [lng, lat]);
   };
 
+  /** 标记集合 */
+  const markers: AMap.Marker[] = [];
+
+  const MARKER_ICON_NORMAL = 'normal';
+  const MARKER_ICON_SELECTED = 'selected';
+
+  /** marker icon */
+  const getMarkerIcon = (className = MARKER_ICON_NORMAL) => {
+    const icon = new AMap.Icon({
+      image: className === MARKER_ICON_SELECTED ? ICON_MAP_MAKE_SELECTED : ICON_MAP_MAKE_NORMAL,
+      size: new AMap.Size(vw(50), vw(50)),
+      imageSize: new AMap.Size(vw(50), vw(50))
+    });
+    icon.CLASS_NAME = className;
+    return icon;
+  };
+
+  const onIconClick = (e: any, item: IEnterpriseInfo) => {
+    const { target } = e;
+    const targetIcon = target?.getIcon();
+    if (targetIcon.CLASS_NAME !== MARKER_ICON_SELECTED) {
+      markers.forEach((marker) => {
+        const icon = marker.getIcon();
+        if (typeof icon !== 'string' && icon?.CLASS_NAME === MARKER_ICON_SELECTED) {
+          marker.setIcon(getMarkerIcon());
+        }
+      });
+      target.setIcon(getMarkerIcon(MARKER_ICON_SELECTED));
+    }
+    openInfo(item);
+  }
+
   /** 设置单个标记 */
   const setSingleMarker = (item: IEnterpriseInfo) => {
-    const { lng, lat } = item;
+    const { lng, lat, isDefault = false } = item;
     const marker = new AMap.Marker({
       position: new AMap.LngLat(lng, lat),
       anchor: 'bottom-center',
-      // icon: ICON_MAP_MAKE,
-      icon: new AMap.Icon({
-        image: ICON_MAP_MAKE,
-        size: new AMap.Size(vw(50), vw(50)),
-        imageSize: new AMap.Size(vw(50), vw(50))
-      }),
+      icon: getMarkerIcon(isDefault ? MARKER_ICON_SELECTED : MARKER_ICON_NORMAL),
       clickable: true,
     });
-    marker.on('click', () => openInfo(item));
+    marker.on('click', (e) => onIconClick(e, item));
+
+    if (isDefault) {
+      openInfo(item);
+    }
+
+    markers.push(marker);
     mapInstance.value.add(marker);
   };
 
