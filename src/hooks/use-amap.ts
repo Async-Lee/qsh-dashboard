@@ -48,6 +48,7 @@ export default () => {
     nextTick(() => {
       mapInstance.value.setDefaultCursor('pointer');
       mapInstance.value.setZoom(zoom);
+      mapInstance.value.on('click', resetMarkerIcon);
     });
   }).catch((error) => {
     console.error(error);  //加载错误提示
@@ -74,7 +75,7 @@ export default () => {
       isCustom: true,
       closeWhenClickMap: true,
       anchor: 'bottom-center',
-      offset: new AMap.Pixel(0, vw(-52)),
+      offset: new AMap.Pixel(0, vw(-32)),
       content: htmlText
     });
 
@@ -91,8 +92,8 @@ export default () => {
   const getMarkerIcon = (className = MARKER_ICON_NORMAL) => {
     const icon = new AMap.Icon({
       image: className === MARKER_ICON_SELECTED ? ICON_MAP_MAKE_SELECTED : ICON_MAP_MAKE_NORMAL,
-      size: new AMap.Size(vw(50), vw(50)),
-      imageSize: new AMap.Size(vw(50), vw(50))
+      size: new AMap.Size(vw(20), vw(24)),
+      imageSize: new AMap.Size(vw(20), vw(24))
     });
     icon.CLASS_NAME = className;
     return icon;
@@ -130,6 +131,16 @@ export default () => {
 
     markers.push(marker);
     mapInstance.value.add(marker);
+  };
+
+  /** 重置标记icon */
+  const resetMarkerIcon = () => {
+    markers.forEach((marker) => {
+      const icon = marker.getIcon();
+      if (typeof icon !== 'string' && icon?.CLASS_NAME === MARKER_ICON_SELECTED) {
+        marker.setIcon(getMarkerIcon());
+      }
+    });
   };
 
   /** 设置标记 */
