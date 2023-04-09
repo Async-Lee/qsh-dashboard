@@ -5,25 +5,25 @@ import { vw, vh } from '@/utils/index';
 
 type EChartsOption = echarts.ComposeOption<TooltipComponentOption | GridComponentOption | BarSeriesOption>;
 
-const xAxisData = [
-  '深圳市 罗湖区',
-  '深圳市 福田区',
-  '深圳市 南山区',
-  '深圳市 宝安区',
-  '深圳市 龙岗区',
-  '深圳市 盐田区',
-  '深圳市 龙华区',
-  '深圳市 坪山区',
-  '深圳市 光明区',
-  '深圳市 大鹏新区',
-  '其他'
-];
+// const xAxisData = [
+//   '深圳市 罗湖区',
+//   '深圳市 福田区',
+//   '深圳市 南山区',
+//   '深圳市 宝安区',
+//   '深圳市 龙岗区',
+//   '深圳市 盐田区',
+//   '深圳市 龙华区',
+//   '深圳市 坪山区',
+//   '深圳市 光明区',
+//   '深圳市 大鹏新区',
+//   '其他'
+// ];
 
-const seriesData = [17, 15, 12, 8, 14, 22, 26, 19, 12, 14, 3];
+// const seriesData = [17, 15, 12, 8, 14, 22, 26, 19, 12, 14, 3];
 
 const color = '#5ba0ff';
 
-const options: EChartsOption = {
+export const getOptions = (xAxisData: string[], seriesData: number[]): EChartsOption => ({
   color,
   tooltip: {
     trigger: 'axis',
@@ -38,7 +38,7 @@ const options: EChartsOption = {
       if (Array.isArray(params)) {
         const { name = '', data: value = '' } = params?.[0] || {};
         if (!name && !value) return '';
-        return `${name.replace(' ', '')}：${value}人`;
+        return `${name.replace(',', '')}：${value}人`;
       }
       return '';
     }
@@ -66,7 +66,7 @@ const options: EChartsOption = {
       interval: 0,
       lineHeight: vw(18),
       formatter: (value: string) => {
-        const arr = value?.split(' ') || [];
+        const arr = value?.split(',') || [];
         return arr.join('\n');
       }
     },
@@ -107,6 +107,4 @@ const options: EChartsOption = {
       borderRadius: [vw(14), vw(14), 0, 0]
     }
   }
-};
-
-export default options;
+});

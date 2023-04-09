@@ -1,20 +1,22 @@
 <template>
   <!-- 会员风采 -->
-  <Panel title="会员风采" :opacity=".3">
-    <Vue3SeamlessScroll v-model="autoScroll" class="member-list-scroll" :list="list" hover wheel :step=".4">
+  <Panel title="会员风采" :opacity=".3" v-loading="loading" element-loading-text="loading..."
+    element-loading-background="rgba(0, 0, 0, .5)">
+    <!-- wheel -->
+    <Vue3SeamlessScroll v-model="autoScroll" class="member-list-scroll" :list="memberList" hover :step=".4">
       <div class="member-list">
-        <div v-for="item, index in list" :key="index" class="member-item">
+        <div v-for="item, index in memberList" :key="index" class="member-item">
           <div class="member-item-avatar" :style="{
             'background-image': `url(${item.avatar})`
           }" />
           <div class="member-item-info">
             <div class="member-item-qsh">
-              <span class="member-item-name">{{ item.userName }}</span>
-              <span class="member-item-position">{{ item.position }}</span>
+              <span class="member-item-name">{{ item.memberName }}</span>
+              <span class="member-item-position">{{ item.job }}</span>
             </div>
             <div class="member-item-enterprise">
               <span class="member-item-name">{{ item.enterpriseName }}</span>
-              <span class="member-item-position">{{ item.enterprisePosition }}</span>
+              <span class="member-item-position">{{ item.memberJob }}</span>
             </div>
           </div>
         </div>
@@ -24,45 +26,51 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
+import { computed, onMounted, ref } from 'vue';
 import Panel from '@/components/Panel.vue';
 import { Vue3SeamlessScroll } from "vue3-seamless-scroll";
-
-const data = ref([
-  {
-    avatar: '',
-    userName: '黄仕坤',
-    position: '会长',
-    enterpriseName: '深圳金雅福控股集团有限公司',
-    enterprisePosition: '董事长'
-  }, {
-    avatar: '',
-    userName: '魏荧',
-    position: '执行会长',
-    enterpriseName: '深圳金雅福控股集团有限公司',
-    enterprisePosition: '总经理'
-  }
-]);
-
-const list = ref([
-  ...data.value,
-  ...data.value,
-  ...data.value,
-  ...data.value,
-  ...data.value,
-  ...data.value,
-  ...data.value,
-  ...data.value,
-  ...data.value,
-  ...data.value,
-  ...data.value
-]);
+import { getMemberList } from '@/api';
 
 const autoScroll = ref(false);
-setTimeout(() => {
-  autoScroll.value = true;
-}, 1500);
 
+const params = ref({
+  page: {
+    pageNum: 1,
+    pageSize: 20,
+  },
+});
+
+const currentPageNum = computed(() => params.value?.page?.pageNum || 1);
+
+const memberList = ref<any[]>([]);
+
+const loading = ref(false);
+
+const init = async () => {
+  loading.value = true;
+  const res = await getMemberList(params.value).finally(() => loading.value = false);
+
+  const list = res?.list || [];
+  memberList.value = currentPageNum.value === 1 ? list : memberList.value.concat(list);
+
+  if (res.pageNum < res.totalPage) {
+    setTimeout(() => {
+      params.value.page.pageNum += 1;
+      init();
+    }, 3000);
+  }
+
+  if (!autoScroll.value) {
+    setTimeout(() => {
+      autoScroll.value = true;
+    }, 1500);
+  }
+};
+
+onMounted(() => {
+  params.value.page.pageNum = 1;
+  init();
+});
 </script>
 
 <style scoped lang="scss">
@@ -96,7 +104,9 @@ setTimeout(() => {
     &-avatar {
       width: vw(50);
       height: vw(50);
-      background: transparent center/contain no-repeat;
+      border-radius: 50%;
+      margin-right: vw(20);
+      background: transparent center/cover no-repeat;
     }
 
     &-info {
@@ -116,11 +126,11 @@ setTimeout(() => {
       margin-top: vh(10);
       color: $color-label;
       font-size: $font-size-s;
-      line-height: vw(20);
+      line-height: vw(28);
     }
 
-    &-position {
-      margin-left: vw(10);
+    &-name {
+      margin-right: vw(10);
     }
   }
 }

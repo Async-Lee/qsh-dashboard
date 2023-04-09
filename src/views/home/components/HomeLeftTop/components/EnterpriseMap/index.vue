@@ -1,25 +1,59 @@
 <template>
   <!-- 企业分布地图 -->
   <div class="enterprise-map">
-    <div id="map" class="enterprise-map-container" v-loading="loading"></div>
+    <div id="map" class="enterprise-map-container" v-loading="loading" element-loading-text="loading..."
+      element-loading-background="rgba(0, 0, 0, .5)" />
   </div>
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref } from 'vue';
+import { ref, watch } from 'vue';
 import useAMap from '@/hooks/use-amap';
+import { storeToRefs } from 'pinia';
+import { useDashboardStore } from '@/stores/dashboard';
+
+const { dashboardData } = storeToRefs(useDashboardStore());
 
 const { initAMap, setMarker } = useAMap();
 
 const getData = () => {
-  // TODO 数据
-  const data = [
-    { lng: 114.13116, lat: 22.54836, enterpriseName: '深圳金雅福控股集团有限公司', enterpriseAddress: '中国广东深圳市罗湖区深南东路4003号世界金融中心大厦A座29楼', isDefault: true },
-    { lng: 113.817125, lat: 22.640507, enterpriseName: '宝安虹桥机场', enterpriseAddress: '中国广东深圳市宝安区' },
-    { lng: 114.046465, lat: 22.614522, enterpriseName: '深圳北', enterpriseAddress: '中国广东深圳市龙华区深圳北站' },
-    { lng: 117.752102, lat: 24.498662, enterpriseName: '漳州欢迎您', enterpriseAddress: '中国福建漳州市' },
-  ];
-  setMarker(data);
+  const { enterpriseAddressList = [] } = dashboardData.value || {};
+  if (enterpriseAddressList?.length) {
+    const enterpriseData = enterpriseAddressList.map((item: any) => {
+      const {
+        latitude = 0,
+        longitude = 0,
+        enterpriseName = '',
+        provinceName,
+        cityName,
+        areaName,
+        detailAddress,
+      } = item || {};
+
+      const enterpriseAddress = [
+        provinceName || '',
+        cityName || '',
+        areaName || '',
+        detailAddress || '',
+      ].join('');
+
+      return ({
+        lat: Number(latitude) || 0,
+        lng: Number(longitude) || 0,
+        enterpriseName: enterpriseName || '',
+        enterpriseAddress,
+        isDefault: false,
+      })
+    });
+
+    // TODO 默认展示第一条有经纬度数据的企业
+    const firstItem = enterpriseData.find((({ lat, lng }: any) => lat && lng));
+    if (firstItem) {
+      firstItem.isDefault = true;
+    }
+
+    setMarker(enterpriseData);
+  }
 };
 
 const loading = ref(false);
@@ -34,9 +68,10 @@ const init = async () => {
   });
 };
 
-onMounted(() => {
+watch(() => dashboardData.value, () => {
   init();
-});
+}, { immediate: true, deep: true });
+
 </script>
 
 <style scoped lang="scss">

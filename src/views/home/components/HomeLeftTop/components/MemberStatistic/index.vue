@@ -8,10 +8,10 @@
             <div class="member-statistic--card-label">{{ item.label }}</div>
             <div class="member-statistic--card-count">
               <span class="member-statistic--card-value">{{ item.value }}</span>人
-              <span v-if="item.rate" class="member-statistic--card-rate">
+              <span v-if="Number(item?.newRatio) > 0" class="member-statistic--card-rate">
                 <span class="member-statistic--card-rate-icon" :style="{
-                  'background-image': `url(${item.up ? ICON_MEMBER_UP : ICON_MEMBER_DOWN})`
-                }" />{{ item.rate }}%
+                  'background-image': `url(${ICON_MEMBER_UP})`,
+                }" />{{ item.newRatio }}%
               </span>
             </div>
           </div>
@@ -25,35 +25,43 @@
 </template>
 
 <script setup lang="ts">
-import { reactive } from 'vue';
+import { computed } from 'vue';
 import Panel from '@/components/Panel.vue';
 import ICON_MEMBER_UP from '@image/icon-member-month-up.png';
-import ICON_MEMBER_DOWN from '@image/icon-member-month-down.png';
+// import ICON_MEMBER_DOWN from '@image/icon-member-month-down.png';
+import { storeToRefs } from 'pinia';
+import { useDashboardStore } from '@/stores/dashboard';
 
-const data = reactive([
-  {
+const data = computed(() => {
+  const { dashboardData } = storeToRefs(useDashboardStore());
+  const { membershipStatistics } = dashboardData.value || {};
+  const {
+    totalMember,
+    addedThisMonth,
+    addedThisMonthChain,
+    totalMaleMember,
+    totalFemaleMember,
+  } = membershipStatistics || {};
+
+  return [{
     label: '会员总数',
-    value: 157,
-    icon: new URL('@image/icon-member-number.png', import.meta.url).href
-  },
-  {
-    label: '本月新增', // TODO 下降？
-    value: 27,
+    value: totalMember || 0,
+    icon: new URL('@image/icon-member-number.png', import.meta.url).href,
+  }, {
+    label: '本月新增',
+    value: addedThisMonth || 0,
     icon: new URL('@image/icon-member-month.png', import.meta.url).href,
-    rate: 15,
-    up: true,
-  },
-  {
+    newRatio: Number(addedThisMonthChain) || 0,
+  }, {
     label: '男性会员',
-    value: 157,
+    value: totalMaleMember || 0,
     icon: new URL('@image/icon-member-man.png', import.meta.url).href
-  },
-  {
+  }, {
     label: '女性会员',
-    value: 157,
+    value: totalFemaleMember || 0,
     icon: new URL('@image/icon-member-woman.png', import.meta.url).href
-  }
-]);
+  }];
+});
 
 </script>
 
@@ -93,7 +101,7 @@ const data = reactive([
       font-size: $font-size-s;
       line-height: vw(20);
     }
-    
+
     &-value {
       position: relative;
       top: vh(2);

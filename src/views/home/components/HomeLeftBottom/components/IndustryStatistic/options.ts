@@ -5,13 +5,13 @@ import { vw, vh } from '@/utils/index';
 
 type EChartsOption = echarts.ComposeOption<TooltipComponentOption | GridComponentOption | LegendComponentOption | PieSeriesOption>;
 
-const seriesData = [
-  { value: 40, name: '黄金珠宝', rate: 25 },
-  { value: 30, name: '金融投资', rate: 25 },
-  { value: 19, name: '房地产', rate: 18 },
-  { value: 10, name: '物业管理', rate: 10 },
-  { value: 5, name: '其他', rate: 6 }
-];
+// const seriesData = [
+//   { value: 40, name: '黄金珠宝', ratio: 25 },
+//   { value: 30, name: '金融投资', ratio: 25 },
+//   { value: 19, name: '房地产', ratio: 18 },
+//   { value: 10, name: '物业管理', ratio: 10 },
+//   { value: 5, name: '其他', ratio: 6 }
+// ];
 
 const color = [
   '#0098fa',
@@ -31,7 +31,7 @@ const color = [
   '#ea7ccc'
 ];
 
-const options: EChartsOption = {
+export const getOptions = (seriesData: any[]): EChartsOption => ({
   color,
   tooltip: {
     trigger: 'item',
@@ -63,7 +63,7 @@ const options: EChartsOption = {
     formatter: (name: string) => {
       const item = seriesData.find(_ => _.name === name)
       if (item) {
-        return `{label|${name}}{value|${item.rate}%}`;
+        return `{label|${name}}{value|${item.ratio}%}`;
       }
       return '';
     },
@@ -121,7 +121,4 @@ const options: EChartsOption = {
     },
     data: seriesData,
   }
-};
-
-
-export default options;
+});

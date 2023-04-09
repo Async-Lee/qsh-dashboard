@@ -8,18 +8,37 @@
 </template>
 
 <script setup lang="ts">
-import { reactive, ref } from 'vue';
+import { reactive, ref, watch } from 'vue';
 import Panel from '@/components/Panel.vue';
 import { LineChart } from 'echarts/charts';
 import useEcharts from '@/hooks/use-echarts';
 import type { useEchartsConfigDTO } from '@/hooks/use-echarts';
-import options from './options';
+import { storeToRefs } from 'pinia';
+import { useDashboardStore } from '@/stores/dashboard';
+import { getOptions } from './options';
 
 const chartRef = ref<HTMLElement | null>(null);
+
+const { dashboardData } = storeToRefs(useDashboardStore());
+
 const conifg: useEchartsConfigDTO = reactive({
   use: [LineChart],
-  options
 });
+
+/** 更新渲染 数据 */
+const updateRenderChart = () => {
+  const { trendList = [] } = dashboardData.value || {};
+  if (trendList?.length) {
+    const xAxisData = trendList?.map(({ key }: any) => key);
+    const seriesData = trendList?.map(({ value }: any) => Number(value) || 0);
+    const options = getOptions(xAxisData, seriesData);
+    conifg.options = options;
+  }
+};
+
+watch(() => dashboardData.value, () => {
+  updateRenderChart();
+}, { immediate: true, deep: true });
 
 useEcharts(chartRef, conifg);
 </script>

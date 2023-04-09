@@ -11,7 +11,7 @@ import { CanvasRenderer } from 'echarts/renderers'
 import { debounce } from '@/utils/index'
 
 export interface useEchartsConfigDTO {
-  options: echarts.ComposeOption<never>,
+  options?: echarts.ComposeOption<never>,
   use?: any[],
 }
 
@@ -19,12 +19,14 @@ export interface useEchartsConfigDTO {
  * @param {HTMLElement} chartRef echarts canvas节点
  * @param {object} config
  * @param {useEchartsConfigDTO} config.options echarts option配置项
+ * @param {function} callback 渲染回调函数
  * @returns {object} object
  * @returns {echarts.ECharts} object.echartInstance echarts实例
  */
 export default (
   chartRef: Ref<HTMLElement | null>,
-  config: useEchartsConfigDTO
+  config: useEchartsConfigDTO,
+  callback?: () => void,
 ) => {
   // 基础组件
   echarts.use([
@@ -41,7 +43,10 @@ export default (
   // 渲染echarts
   const render = (_option = config.options) => {
     if (_option) {
-      echartInstance?.setOption(_option)
+      echartInstance?.setOption(_option);
+      nextTick(() => {
+        callback?.();
+      });
     }
   }
   // 初始化echarts

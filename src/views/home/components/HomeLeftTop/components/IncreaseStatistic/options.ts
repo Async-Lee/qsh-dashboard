@@ -5,12 +5,9 @@ import { vw, vh } from '@/utils/index';
 
 type EChartsOption = echarts.ComposeOption<GridComponentOption | LineSeriesOption>;
 
-const xAxisData = ['22-09', '22-10', '22-11', '22-12', '23-01', '23-02'];
-const seriesData = [53, 76, 88, 128, 132, 157];
-
 const color = '#0098fa';
 
-const options: EChartsOption = {
+export const getOptions = (xAxisData: string[], seriesData: number[]): EChartsOption => ({
   color,
   tooltip: {
     trigger: 'axis',
@@ -19,7 +16,7 @@ const options: EChartsOption = {
   grid: {
     left: vw(24),
     right: vw(24),
-    top: vh(20),
+    top: vh(32),
     bottom: vh(10),
     containLabel: true,
   },
@@ -105,6 +102,4 @@ const options: EChartsOption = {
       }
     }
   }
-};
-
-export default options;
+});
